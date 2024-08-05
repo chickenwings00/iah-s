@@ -1,0 +1,120 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URI;
+
+public class BirthdayGreeting {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                createAndShowGUI();
+            }
+        });
+    }
+
+    private static void createAndShowGUI() {
+        BirthdayFrame frame = new BirthdayFrame();
+        frame.setVisible(true);
+    }
+}
+
+class BirthdayFrame extends JFrame {
+    public BirthdayFrame() {
+        setTitle(" ");
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        BirthdayPanel panel = new BirthdayPanel();
+        add(panel);
+    }
+}
+
+class BirthdayPanel extends JPanel {
+    private static final String HER_NAME = "hi baby";
+    private static final String PERSONAL_MESSAGE = "did u miss me?";
+    private static final String LINK_URL = "https://www.canva.com/design/DAGM_vLkYDs/LGTfaauSJlq-tXA4K_Pe6w/edit?utm_content=DAGM_vLkYDs&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton"; // Replace with your actual URL
+
+    private Timer timer;
+    private int heartSize = 50;
+    private boolean growing = true;
+
+    public BirthdayPanel() {
+        setBackground(Color.WHITE);
+        setLayout(new BorderLayout());
+
+        JLabel messageLabel = new JLabel(" " + HER_NAME + "!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        messageLabel.setForeground(Color.BLACK);
+        add(messageLabel, BorderLayout.NORTH);
+
+        JTextArea personalMessage = new JTextArea(PERSONAL_MESSAGE);
+        personalMessage.setFont(new Font("Arial", Font.PLAIN, 16));
+        personalMessage.setWrapStyleWord(true);
+        personalMessage.setLineWrap(true);
+        personalMessage.setOpaque(false);
+        personalMessage.setEditable(false);
+        personalMessage.setFocusable(false);
+        personalMessage.setBackground(Color.BLUE);
+        personalMessage.setMargin(new Insets(10, 20, 10, 20));
+        add(personalMessage, BorderLayout.CENTER);
+
+        JButton linkButton = new JButton("click me if yes or click me if yes na yes");
+        linkButton.setFont(new Font("Arial", Font.BOLD, 16));
+        linkButton.setBackground(Color.WHITE);
+        linkButton.setForeground(Color.BLUE);
+        linkButton.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+        linkButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        linkButton.addActionListener(new OpenLinkAction(LINK_URL));
+        add(linkButton, BorderLayout.SOUTH);
+
+        timer = new Timer(50, new HeartbeatAnimation());
+        timer.start();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.BLACK);
+        int x = getWidth() / 2 - heartSize / 2;
+        int y = getHeight() / 2 - heartSize / 2 - 50;
+        g.fillOval(x, y, heartSize, heartSize);
+    }
+
+    private class HeartbeatAnimation implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (growing) {
+                heartSize += 2;
+                if (heartSize >= 70) {
+                    growing = false;
+                }
+            } else {
+                heartSize -= 2;
+                if (heartSize <= 50) {
+                    growing = true;
+                }
+            }
+            repaint();
+        }
+    }
+
+    private static class OpenLinkAction implements ActionListener {
+        private final String url;
+
+        public OpenLinkAction(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                Desktop.getDesktop().browse(new URI(url));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+}
